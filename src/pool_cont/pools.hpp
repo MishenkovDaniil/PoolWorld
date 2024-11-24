@@ -10,39 +10,39 @@ enum Colors {
 
 class Pool {
     friend class Container;
-    size_t volume_ = 0;
-    size_t idx_;
+    size_t volume = 0;
+    size_t idx;
 
-    Pool (size_t idx) : idx_(idx) {;}
+    Pool (size_t poolIdx) : idx(poolIdx) {;}
 
     size_t getVolume () {
-        return volume_;
+        return volume;
     }
     void addWater (size_t size) {
-        volume_ += size;
+        volume += size;
     }
 };
 
 
 class Edges {
     friend class Container;
-    size_t vertex_;
-    std::vector<size_t> neighbors_;
+    size_t vertex;
+    std::vector<size_t> neighbors;
 public:
-    Edges (size_t vertex) : vertex_(vertex){};
+    Edges (size_t mainVertex) : vertex(mainVertex){};
     bool addNeighbor (size_t neighbor) {
-        for (auto it = neighbors_.begin (); it != neighbors_.end(); ++it) {
+        for (auto it = neighbors.begin (); it != neighbors.end(); ++it) {
             if (*it == neighbor) {
                 return false;
             }
         }
-        neighbors_.push_back (neighbor);
+        neighbors.push_back (neighbor);
         return true;
     }
     bool removeNeighbor (size_t neighbor) {
-        for (auto it = neighbors_.begin (); it != neighbors_.end(); ++it) {
+        for (auto it = neighbors.begin (); it != neighbors.end(); ++it) {
             if (*it == neighbor) {
-                neighbors_.erase(it);
+                neighbors.erase(it);
                 return true;
             }
         }
@@ -57,12 +57,10 @@ class Container {
     std::vector<Colors> colors = std::vector<Colors>();
     std::vector<size_t> marked;
 
-    size_t cur_idx = 0;
-    size_t max_capacity = 0;
+    size_t curIdx = 0;
 public:
     Container () {}
-    
-    Container (const size_t size) :max_capacity(size){
+    Container (const size_t size) {
         pools.reserve (size);
         edges.reserve (size);
         needRefresh.reserve (size);
@@ -88,11 +86,11 @@ public:
     void AddWater (size_t pool, size_t size);
     
     bool Contains (Pool& pool);
-    bool Contains (size_t pool_idx);
+    bool Contains (size_t poolIdx);
 
     ~Container () {
-        for (auto pool_edges: edges) {
-            delete pool_edges;
+        for (auto poolEdges: edges) {
+            delete poolEdges;
         }
         for (auto pool:pools) {
             delete pool;
@@ -101,8 +99,8 @@ public:
 
 private:
     void MarkAll ();
-    void Refresh (size_t pool_idx);
-    size_t getConnectionAvgVolume (size_t pool_idx);
-    bool checkConnection (size_t a_idx, size_t b_idx);
+    void Refresh (size_t poolIdx);
+    size_t getConnectionAvgVolume (size_t poolIdx);
+    bool checkConnection (size_t firstIdx, size_t secondIidx);
 };
 
