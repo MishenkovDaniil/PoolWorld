@@ -11,9 +11,12 @@
 ## Тесты 
 
 - simple - простой тест на работоспособность. Реализация - [simple test impl](https://github.com/MishenkovDaniil/PoolWorld/blob/master/src/tests/tests.cpp).
-- time - тест на производительность, когда количество операций над контейнером порядка 10 миллионов. Реализация - [time test impl](https://github.com/MishenkovDaniil/PoolWorld/blob/master/src/tests/tests.cpp).
+- time - тест на производительность, когда количество операций над контейнером порядка 10 миллионов. Реализация - [time test impl](https://github.com/MishenkovDaniil/PoolWorld/blob/master/src/tests/tests.cpp). 
 
-О подробных сценариях тестов можно прочитать в [readme](https://github.com/MishenkovDaniil/PoolWorld/blob/master/src/tests/readme.md).
+
+О подробных сценариях тестов можно прочитать в [readme](https://github.com/MishenkovDaniil/PoolWorld/blob/master/src/tests/readme.md). 
+
+Время работы `time` теста для описанного там случая составило около 190 секунд.
 
 ## Запуск 
 
