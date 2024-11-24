@@ -28,8 +28,8 @@ void Container::Connect (size_t first, size_t second) {
         return;
     }
 
-    bool isNeighbor = edges[first]->addNeighbor (second);
-    edges[second]->addNeighbor (first);
+    bool isNeighbor = edges[first]->AddNeighbor (second);
+    edges[second]->AddNeighbor (first);
 
     if (!isNeighbor) {
         marked.push_back(first);
@@ -50,8 +50,8 @@ void Container::Connect (Pool &first, Pool &second) {
     size_t firstIdx = first.idx;
     size_t secondIdx = second.idx;
 
-    bool isNeighbor = edges[firstIdx]->addNeighbor (secondIdx);
-    edges[secondIdx]->addNeighbor (firstIdx);
+    bool isNeighbor = edges[firstIdx]->AddNeighbor (secondIdx);
+    edges[secondIdx]->AddNeighbor (firstIdx);
 
     if (!isNeighbor) {
         marked.push_back(firstIdx);
@@ -78,8 +78,8 @@ void Container::RemoveConnection (Pool &first, Pool &second) {
         Refresh (firstIdx);
     }
     
-    edges[firstIdx]->removeNeighbor (secondIdx);
-    edges[secondIdx]->removeNeighbor (firstIdx);
+    edges[firstIdx]->RemoveNeighbor (secondIdx);
+    edges[secondIdx]->RemoveNeighbor (firstIdx);
 }
 
 void Container::RemoveConnection (size_t first, size_t second) {
@@ -100,8 +100,8 @@ void Container::RemoveConnection (size_t first, size_t second) {
         Refresh (first);
     }
 
-    edges[first]->removeNeighbor (second);
-    edges[second]->removeNeighbor (first);
+    edges[first]->RemoveNeighbor (second);
+    edges[second]->RemoveNeighbor (first);
 }
 
 size_t Container::GetVolume (Pool& pool) {
@@ -114,7 +114,7 @@ size_t Container::GetVolume (Pool& pool) {
     if (needRefresh.at(pool.idx)) {
         Refresh(pool.idx);
     }   
-    return pool.getVolume ();
+    return pool.GetVolume ();
 }
 size_t Container::GetVolume (size_t pool) {
     if (!Contains (pool))  {
@@ -125,7 +125,7 @@ size_t Container::GetVolume (size_t pool) {
     if (needRefresh.at(pool)) {
         Refresh(pool);
     }   
-    return pools[pool]->getVolume ();
+    return pools[pool]->GetVolume ();
 }
 
 void Container::AddWater (Pool &pool, size_t size) {
@@ -133,7 +133,7 @@ void Container::AddWater (Pool &pool, size_t size) {
         std::cout << "Container doesn't contains pool [" << &pool << "].\n";
         return;
     } 
-    pool.addWater(size);
+    pool.AddWater(size);
     marked.push_back(pool.idx);
 }
 void Container::AddWater (size_t pool, size_t size) {
@@ -141,7 +141,7 @@ void Container::AddWater (size_t pool, size_t size) {
         std::cout << "Container doesn't contains pool [" << pool << "].\n";
         return;
     } 
-    pools[pool]->addWater(size);
+    pools[pool]->AddWater(size);
     marked.push_back(pool);
 }
 bool Container::Contains (Pool& pool) {
@@ -196,7 +196,7 @@ bool Container::checkConnection (size_t firstIdx, size_t secondIdx) {
 }
 
 void Container::Refresh (size_t poolIdx) {
-    size_t avgVolume = getConnectionAvgVolume (poolIdx);
+    size_t avgVolume = GetConnectionAvgVolume (poolIdx);
 
     static std::queue<size_t> queue;
     static std::vector<size_t> visited;
@@ -227,7 +227,7 @@ void Container::Refresh (size_t poolIdx) {
     visited.clear();
 }
 
-size_t Container::getConnectionAvgVolume (size_t poolIdx) {
+size_t Container::GetConnectionAvgVolume (size_t poolIdx) {
     static std::queue<size_t> queue;
     static std::vector<size_t> visited;
     

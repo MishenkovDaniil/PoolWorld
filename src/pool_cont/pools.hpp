@@ -15,10 +15,10 @@ class Pool {
 
     Pool (size_t poolIdx) : idx(poolIdx) {;}
 
-    size_t getVolume () {
+    size_t GetVolume () {
         return volume;
     }
-    void addWater (size_t size) {
+    void AddWater (size_t size) {
         volume += size;
     }
 };
@@ -30,7 +30,7 @@ class Edges {
     std::vector<size_t> neighbors;
 public:
     Edges (size_t mainVertex) : vertex(mainVertex){};
-    bool addNeighbor (size_t neighbor) {
+    bool AddNeighbor (size_t neighbor) {
         for (auto it = neighbors.begin (); it != neighbors.end(); ++it) {
             if (*it == neighbor) {
                 return false;
@@ -39,7 +39,7 @@ public:
         neighbors.push_back (neighbor);
         return true;
     }
-    bool removeNeighbor (size_t neighbor) {
+    bool RemoveNeighbor (size_t neighbor) {
         for (auto it = neighbors.begin (); it != neighbors.end(); ++it) {
             if (*it == neighbor) {
                 neighbors.erase(it);
@@ -67,7 +67,7 @@ public:
         colors.reserve (size);
     }
     
-    size_t getSize () {
+    size_t GetSize () {
         return pools.size();
     }
 
@@ -100,7 +100,7 @@ public:
 private:
     void MarkAll ();
     void Refresh (size_t poolIdx);
-    size_t getConnectionAvgVolume (size_t poolIdx);
+    size_t GetConnectionAvgVolume (size_t poolIdx);
     bool checkConnection (size_t firstIdx, size_t secondIidx);
 };
 
