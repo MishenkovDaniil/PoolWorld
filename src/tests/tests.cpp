@@ -90,7 +90,6 @@ void timeTest () {
     const size_t MinWater = 1;
     const size_t MaxWater = 500;
 
-
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     {
         Container cont(N);
@@ -141,6 +140,6 @@ void timeTest () {
         printf ("end\n");
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    size_t elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000;
-    std::cout << "Elapsed time = " << elapsedTime << "seconds.\n";
+    size_t elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+    std::cout << "Elapsed time = " << elapsedTime / 1000 <<"," << elapsedTime % 1000 << " seconds.\n";
 }
