@@ -12,8 +12,9 @@ class Pool {
     size_t volume = 0;
     size_t idx;
 
+public:
     Pool (size_t poolIdx) : idx(poolIdx) {}
-
+private:
     size_t GetVolume () {
         return volume;
     }
@@ -49,11 +50,21 @@ public:
     }
 };
 
+struct ContainerElem {
+    Pool pool;
+    Edges edges;
+    bool needRefresh = false;
+    Colors color = White;
+
+    ContainerElem (size_t poolIdx) : pool(poolIdx), edges(poolIdx) {}
+};
+
 class Container {
-    std::vector<Pool *> pools = std::vector<Pool *>();
-    std::vector<Edges*> edges = std::vector<Edges*>();
-    std::vector<bool> needRefresh = std::vector<bool>();
-    std::vector<Colors> colors = std::vector<Colors>();
+    // std::vector<Pool *> pools = std::vector<Pool *>();
+    // std::vector<Edges*> edges = std::vector<Edges*>();
+    // std::vector<bool> needRefresh = std::vector<bool>();
+    // std::vector<Colors> colors = std::vector<Colors>();
+    std::vector<ContainerElem *> pools;
     std::vector<size_t> marked;
 
     size_t curIdx = 0;
@@ -61,9 +72,6 @@ public:
     Container () {}
     Container (const size_t size) {
         pools.reserve (size);
-        edges.reserve (size);
-        needRefresh.reserve (size);
-        colors.reserve (size);
     }
     
     size_t GetSize () {
@@ -78,21 +86,21 @@ public:
      
     void RemoveConnection (Pool &a, Pool &b);
     void RemoveConnection (size_t a, size_t b);
+    void RemoveBase (size_t first, size_t second);
     
     size_t GetVolume (Pool& pool);
     size_t GetVolume (size_t pool);
+    size_t GetVolumeBase (size_t pool);
     
     void AddWater (Pool &pool, size_t size);
     void AddWater (size_t pool, size_t size);
+    void AddWaterBase (size_t pool, size_t size);
     
     bool Contains (Pool& pool);
     bool Contains (size_t poolIdx);
 
     ~Container () {
-        for (auto poolEdges: edges) {
-            delete poolEdges;
-        }
-        for (auto pool:pools) {
+        for (auto pool: pools) {
             delete pool;
         }
     }

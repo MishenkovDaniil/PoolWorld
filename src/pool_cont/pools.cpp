@@ -3,16 +3,12 @@
 #include "pools.hpp"
 
 Pool & Container::AddPool () {
-    Pool *pool = new Pool (curIdx);
+    ContainerElem *element = new ContainerElem (curIdx);
     
-    pools.push_back (pool);
-    edges.push_back (new Edges (curIdx));
-    needRefresh.push_back (false);
-    colors.push_back (White);
-    
+    elements.push_back (element);
     curIdx++;
 
-    return *pool;
+    return element->pool;
 }
 
 void Container::Connect (size_t first, size_t second) {
@@ -45,8 +41,8 @@ void Container::Connect (Pool &first, Pool &second) {
     ConnectBase (first.idx, second.idx);
 }
 void Container::ConnectBase (size_t first, size_t second) {
-    bool isNeighbor = edges[first]->AddNeighbor (second);
-    edges[second]->AddNeighbor (first);
+    bool isNeighbor = elements[first]->edges.AddNeighbor (second);
+    elements[second]->edges.AddNeighbor (first);
 
     if (!isNeighbor) {
         marked.push_back(first);
@@ -65,19 +61,8 @@ void Container::RemoveConnection (Pool &first, Pool &second) {
         std::cout << "Container doesn't contains pool [" << &second << "].\n";
         return;
     }
-
-    size_t firstIdx = first.idx;
-    size_t secondIdx = second.idx;
-
-    MarkAll ();
-    if (needRefresh[firstIdx] || needRefresh[secondIdx]) {
-        Refresh (firstIdx);
-    }
-    
-    edges[firstIdx]->RemoveNeighbor (secondIdx);
-    edges[secondIdx]->RemoveNeighbor (firstIdx);
+    RemoveBase (first.idx, second.idx);
 }
-
 void Container::RemoveConnection (size_t first, size_t second) {
     if (first == second) {
         return;
@@ -90,14 +75,17 @@ void Container::RemoveConnection (size_t first, size_t second) {
         std::cout << "Container doesn't contains pool [" << second << "].\n";
         return;
     }
+    RemoveBase (first, second);
+}
+void Container::RemoveBase (size_t first, size_t second) {
     MarkAll ();
 
-    if (needRefresh[first] || needRefresh[second]) {
+    if (elements[first]->needRefresh || elements[second]->needRefresh) {
         Refresh (first);
     }
 
-    edges[first]->RemoveNeighbor (second);
-    edges[second]->RemoveNeighbor (first);
+    elements[first]->edges.RemoveNeighbor (second);
+    elements[second]->edges.RemoveNeighbor (first);
 }
 
 size_t Container::GetVolume (Pool& pool) {
@@ -105,23 +93,21 @@ size_t Container::GetVolume (Pool& pool) {
         std::cout << "Container doesn't contains pool [" << &pool << "].\n";
         return -1;
     } 
-    MarkAll ();
-
-    if (needRefresh.at(pool.idx)) {
-        Refresh(pool.idx);
-    }   
-    return pool.GetVolume ();
+    return GetVolumeBase (pool.idx);
 }
 size_t Container::GetVolume (size_t pool) {
     if (!Contains (pool))  {
         std::cout << "Container doesn't contains pool [" << pool << "].\n";
         return -1;
     } 
+    return GetVolumeBase (pool);
+}
+size_t Container::GetVolumeBase (size_t pool) {
     MarkAll ();
-    if (needRefresh.at(pool)) {
+    if (elements[pool]->needRefresh) {
         Refresh(pool);
     }   
-    return pools[pool]->GetVolume ();
+    return elements[pool]->pool.GetVolume ();
 }
 
 void Container::AddWater (Pool &pool, size_t size) {
@@ -129,23 +115,24 @@ void Container::AddWater (Pool &pool, size_t size) {
         std::cout << "Container doesn't contains pool [" << &pool << "].\n";
         return;
     } 
-    pool.AddWater(size);
-    marked.push_back(pool.idx);
+    AddWaterBase (pool.idx, size);
 }
 void Container::AddWater (size_t pool, size_t size) {
     if (!Contains (pool))  {
         std::cout << "Container doesn't contains pool [" << pool << "].\n";
         return;
     } 
-    pools[pool]->AddWater(size);
+    AddWaterBase (pool, size);
+}
+void Container::AddWaterBase (size_t pool, size_t size) {
+    elements[pool]->pool.AddWater(size);
     marked.push_back(pool);
 }
+
+
 bool Container::Contains (Pool& pool) {
     size_t poolIdx = pool.idx;
-    if (poolIdx < curIdx) {
-        return &pool == (pools.at(poolIdx));
-    }
-    return false;
+    return  Contains (poolIdx) && &pool == &(elements[poolIdx]->pool);
 }
 bool Container::Contains (size_t poolIdx) {
     return poolIdx < curIdx;
@@ -158,27 +145,27 @@ void Container::Refresh (size_t poolIdx) {
     static std::vector<size_t> visited;
     
     queue.push (poolIdx);
-    colors[poolIdx] = Gray;
+    elements[poolIdx]->color = Gray;
     visited.push_back (poolIdx);
     
     while (!queue.empty()) {
         size_t vertex = queue.front();
         queue.pop();
         
-        pools[vertex]->volume = avgVolume;
+        elements[vertex]->pool.volume = avgVolume;
 
-        for (size_t neighbor: edges[vertex]->neighbors) {
-            if (colors.at(neighbor) == White) {
+        for (size_t neighbor: elements[vertex]->edges.neighbors) {
+            if (elements[neighbor]->color == White) {
                 queue.push (neighbor);
-                colors[neighbor] = Gray;
+                elements[neighbor]->color = Gray;
                 visited.push_back (neighbor);
             }
         }
     }
 
     for (size_t vertex: visited) {
-        needRefresh[vertex] = false;
-        colors[vertex] = White;
+        elements[vertex]->needRefresh = false;
+        elements[vertex]->color = White;
     }
     visited.clear();
 }
@@ -192,28 +179,28 @@ size_t Container::GetConnectionAvgVolume (size_t poolIdx) {
 
     queue.push (poolIdx);
     ++size;
-    volumeSum += pools[poolIdx]->volume;
-    colors[poolIdx] = Gray;
+    volumeSum += elements[poolIdx]->pool.volume;
+    elements[poolIdx]->color = Gray;
     visited.push_back (poolIdx);
    
     while (!queue.empty()) {
         size_t vertex = queue.front();
         queue.pop();
     
-        for (size_t neighbor: edges[vertex]->neighbors) {
-            if (colors.at(neighbor) == White) {
+        for (size_t neighbor: elements[vertex]->edges.neighbors) {
+            if (elements[neighbor]->color == White) {
                 queue.push (neighbor);
                 ++size;
-                volumeSum += pools[neighbor]->volume;
-                colors[neighbor] = Gray;
+                volumeSum += elements[neighbor]->pool.volume;
+                elements[neighbor]->color = Gray;
                 visited.push_back (neighbor);
             }
         }
-        needRefresh[vertex] = true;
+        elements[vertex]->needRefresh = true;
     }
 
     for (size_t vertex: visited) {
-        colors[vertex] = White;
+        elements[vertex]->color = White;
     }
     visited.clear();
     return volumeSum / size;
@@ -225,29 +212,29 @@ void Container::MarkAll () {
     static std::vector<size_t> visited;
 
     for (auto poolIdx: marked) {
-        if (colors[poolIdx] != White) {
+        if (elements[poolIdx]->color != White) {
             continue;
         }
         queue.push (poolIdx);
-        colors[poolIdx] = Gray;
+        elements[poolIdx]->color = Gray;
         visited.push_back (poolIdx);
         while (!queue.empty()) {
             size_t vertex = queue.front();
             queue.pop();
-            for (size_t neighbor: edges[vertex]->neighbors) {
-                if (colors.at(neighbor) == White) {
+            for (size_t neighbor: elements[vertex]->edges.neighbors) {
+                if (elements[neighbor]->color == White) {
                     queue.push (neighbor);
-                    colors[neighbor] = Gray;
+                    elements[neighbor]->color = Gray;
                     visited.push_back (neighbor);
                 }
             }
-            needRefresh[vertex] = true;
+            elements[vertex]->needRefresh = true;
         }
     }
     marked.clear();
 
     for (size_t vertex: visited) {
-        colors[vertex] = White;
+        elements[vertex]->color = White;
     }
     visited.clear();
 }
