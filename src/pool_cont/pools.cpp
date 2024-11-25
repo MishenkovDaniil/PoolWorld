@@ -28,12 +28,7 @@ void Container::Connect (size_t first, size_t second) {
         return;
     }
 
-    bool isNeighbor = edges[first]->AddNeighbor (second);
-    edges[second]->AddNeighbor (first);
-
-    if (!isNeighbor) {
-        marked.push_back(first);
-    }
+    ConnectBase (first, second);
 }
 void Container::Connect (Pool &first, Pool &second) {
     if (&first == &second) {
@@ -47,16 +42,17 @@ void Container::Connect (Pool &first, Pool &second) {
         std::cout << "Container doesn't contains pool [" << &second << "].\n";
         return;
     }
-    size_t firstIdx = first.idx;
-    size_t secondIdx = second.idx;
-
-    bool isNeighbor = edges[firstIdx]->AddNeighbor (secondIdx);
-    edges[secondIdx]->AddNeighbor (firstIdx);
+    ConnectBase (first.idx, second.idx);
+}
+void Container::ConnectBase (size_t first, size_t second) {
+    bool isNeighbor = edges[first]->AddNeighbor (second);
+    edges[second]->AddNeighbor (first);
 
     if (!isNeighbor) {
-        marked.push_back(firstIdx);
+        marked.push_back(first);
     }
 }
+
 void Container::RemoveConnection (Pool &first, Pool &second) {
     if (&first == &second) {
         return;
@@ -153,46 +149,6 @@ bool Container::Contains (Pool& pool) {
 }
 bool Container::Contains (size_t poolIdx) {
     return poolIdx < curIdx;
-}
-
-
-bool Container::checkConnection (size_t firstIdx, size_t secondIdx) {
-    if (firstIdx == secondIdx) {
-        return true;
-    }
-
-    bool ans = false;
-    static std::queue<size_t> queue;
-    static std::vector<size_t> visited;
-    
-    queue.push (firstIdx);
-    colors[firstIdx] = Gray;
-    visited.push_back (firstIdx);
-    
-    while (!queue.empty() && !ans) {
-        size_t vertex = queue.front();
-        queue.pop();
-        for (size_t neighbor: edges[vertex]->neighbors) {
-            if (colors.at(neighbor) == White) {
-                if (neighbor == secondIdx) {
-                    ans = true;
-                    break;
-                }
-                queue.push (neighbor);
-                colors[neighbor] = Gray;
-                visited.push_back (neighbor);
-            }
-        }
-    }
-    while (!queue.empty()) {
-        queue.pop();
-    }
-
-    for (size_t vertex: visited) {
-        colors[vertex] = White;
-    }
-    visited.clear();
-    return ans;
 }
 
 void Container::Refresh (size_t poolIdx) {

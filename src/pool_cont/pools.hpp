@@ -4,8 +4,7 @@
 
 enum Colors {
     White = 0,
-    Gray = 1, 
-    Black = 2
+    Gray = 1
 };
 
 class Pool {
@@ -13,7 +12,7 @@ class Pool {
     size_t volume = 0;
     size_t idx;
 
-    Pool (size_t poolIdx) : idx(poolIdx) {;}
+    Pool (size_t poolIdx) : idx(poolIdx) {}
 
     size_t GetVolume () {
         return volume;
@@ -75,7 +74,8 @@ public:
 
     void Connect (size_t a, size_t b);
     void Connect (Pool &a, Pool &b);
-    
+    void ConnectBase (size_t first, size_t second);
+     
     void RemoveConnection (Pool &a, Pool &b);
     void RemoveConnection (size_t a, size_t b);
     
@@ -101,6 +101,5 @@ private:
     void MarkAll ();
     void Refresh (size_t poolIdx);
     size_t GetConnectionAvgVolume (size_t poolIdx);
-    bool checkConnection (size_t firstIdx, size_t secondIidx);
 };
 
