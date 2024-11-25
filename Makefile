@@ -6,7 +6,7 @@ simple: src/simpletest.cpp src/pool_cont/pools.cpp src/tests/tests.cpp
 	$(CC) src/pool_cont/pools.cpp src/simpletest.cpp src/tests/tests.cpp -o simple
 	./simple
 time: src/timetest.cpp src/pool_cont/pools.cpp src/tests/tests.cpp
-	$(CC) src/pool_cont/pools.cpp src/timetest.cpp src/tests/tests.cpp -o timetest
+	$(CC) src/pool_cont/pools.cpp src/timetest.cpp src/tests/tests.cpp -O3 -o timetest
 	./timetest
 simple_debug: src/simpletest.cpp src/pool_cont/pools.cpp src/tests/tests.cpp
 	$(CC) src/pool_cont/pools.cpp src/simpletest.cpp src/tests/tests.cpp $(Debug_flags) -o simple
